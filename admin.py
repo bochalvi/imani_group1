@@ -1,16 +1,22 @@
+
 from django.contrib import admin
-from .models import Member
-from django.utils.translation import gettext_lazy as _
-
-
-class MemberAdmin(admin.ModelAdmin):
-    list_display = ('member_id', 'first_name', 'last_name',
-                    'email', 'phone', 'member_type', 'is_active')
-    search_fields = ('first_name', 'last_name', 'phone_number')
-    list_filter = ('is_active', 'member_type')
-    prepopulated_fields = {'slug': ('first_name', 'last_name')}
+from .models import Invitation
 
 
 # Register your models here.
 
-admin.site.register(Member, MemberAdmin)
+
+class InvitationAdmin(admin.ModelAdmin):
+    list_display = ('inviter', 'email', 'token',
+                    'created_at', 'expires_at', 'is_used')
+    search_fields = ('inviter__username', 'email')
+    list_filter = ('is_used', 'created_at')
+
+
+admin.site.register(Invitation, InvitationAdmin)
+
+
+class PasswordResetAdmin(admin.ModelAdmin):
+    list_display = ('user', 'reset_id', 'created_when')
+    search_fields = ('user__username',)
+    list_filter = ('created_when',)

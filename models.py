@@ -1,33 +1,40 @@
 from django.db import models
-from django.utils import timezone
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
-
+from django.core.exceptions import ValidationError
+import uuid
+from django.utils import timezone
+from decimal import Decimal
+from datetime import timedelta
 # Create your models here.
 
 
-class Member(models.Model):
-    MEMBER_TYPES = [
-        ('REG', 'Regular'),
-        ('VIP', 'VIP'),
-    ]
+class Invitation(models.Model):
+    # User who created the invite
+    inviter = models.ForeignKey(User, on_delete=models.CASCADE)
+    # Optional: Restrict invites to specific emails
+    email = models.EmailField(blank=True)
+    token = models.UUIDField(
+        default=uuid.uuid4, unique=True)  # Unique invite token
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()  # Set expiration time
+    is_used = models.BooleanField(default=False)  # Track if the
 
-    member_id = models.CharField(
-        max_length=20,   primary_key=True, unique=True)
-    first_name = models.CharField(max_length=100, null=True, blank=True)
-    last_name = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(max_length=255, null=True, blank=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-    date_joined = models.DateTimeField(default=timezone.now, editable=True)
-    member_type = models.CharField(
-        max_length=3, choices=MEMBER_TYPES, default='REG')
-    id_number = models.CharField(
-        max_length=50, unique=True, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    slug = models.SlugField(default="", null=False)
+
+class PasswordReset(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reset_id = models.UUIDField(
+        default=uuid.uuid4, unique=True, editable=False)
+    created_when = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.member_id} - {self.first_name} {self.last_name}"
+        return f"Password reset for {self.user.username} at {self.created_when}"
+
+
+class Member(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    # Add other fields as needed
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
