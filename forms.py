@@ -1,32 +1,30 @@
 from django import forms
-from .models import SavingsAccount, Transaction
+from .models import Loan, Repayment
 
 
-class SavingsAccountForm(forms.ModelForm):
+class loanApplicationForm(forms.ModelForm):
     class Meta:
-        model = SavingsAccount
-        exclude = ['current_balance', 'last_activity']
-
-
-class DepositForm(forms.ModelForm):
-    class Meta:
-        model = Transaction
-        fields = ['account', 'amount', 'description']
+        model = Loan
+        fields = ['amount', 'interest_rate', 'term_months']
         widgets = {
-            'account': forms.Select(attrs={'class': 'form-control'}),
-            'amount': forms.NumberInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'amount': forms.NumberInput(attrs={'step': '0.01'}),
+            'interest_rate': forms.NumberInput(attrs={'step': '0.01'}),
+            'term': forms.NumberInput(attrs={'min': 1}),
+        }
+        labels = {
+            'amount': 'Loan Amount',
+            'interest_rate': 'Interest Rate (%)',
+            'term': 'Term (months)',
         }
 
 
-class WithdrawalForm(forms.ModelForm):
+class repaymentForm(forms.ModelForm):
     class Meta:
-        model = Transaction
-        fields = ['account', 'amount', 'description']
-
-
-class AccountCreationForm(forms.ModelForm):
-    class Meta:
-        model = SavingsAccount
-        # These will be set automatically
-        exclude = ['account_number', 'member']
+        model = Repayment
+        fields = ['amount']
+        widgets = {
+            'amount': forms.NumberInput(attrs={'step': '0.01'}),
+        }
+        labels = {
+            'amount': 'Repayment Amount',
+        }
