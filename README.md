@@ -1,1 +1,1 @@
-# imani_group1
+# imani_help_group
